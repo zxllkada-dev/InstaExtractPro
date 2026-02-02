@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InstaExtract Pro - Instagram Data Extraction Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            position: relative;
+            text-align: center;
+            padding: 100px 20px 80px;
+            color: white;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.85em;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .logo-main {
+            font-size: 4.5em;
+            font-weight: 900;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+            letter-spacing: -2px;
+        }
+
+        .logo-tagline {
+            font-size: 1.5em;
+            font-weight: 300;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            letter-spacing: 1px;
+        }
+
+        .value-props {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 35px auto 40px;
+            flex-wrap: wrap;
+            max-width: 900px;
+        }
+
+        .value-prop {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-size: 0.95em;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .value-prop-icon {
+            font-size: 1.3em;
+        }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 15px 40px;
+            border-radius: 50px;
+            min-width: 250px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            margin: 40px 0;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+
+        .content-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 40px;
+            align-items: start;
+        }
+
+        .carousel-container {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .carousel-wrapper {
+            overflow: hidden;
+            border-radius: 15px;
+        }
+
+        .carousel-slides {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            height: 400px;
+            flex-shrink: 0;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .carousel-slide img:hover {
+            transform: scale(1.02);
+        }
+
+        .carousel-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 4em;
+        }
+
+        /* Full-screen modal styles */
+        .fullscreen-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fullscreen-modal.active {
+            display: flex;
+        }
+
+        .fullscreen-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        .fullscreen-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 40px;
+            color: white;
+            cursor: pointer;
+            background: none;
+            border: none;
+            z-index: 10000;
+        }
+
+        .fullscreen-close:hover {
+            color: #ccc;
+        }
+
+        .carousel-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.9);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+
+        .carousel-button:hover {
+            background: white;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carousel-button.prev {
+            left: 15px;
+        }
+
+        .carousel-button.next {
+            right: 15px;
+        }
+
+        .carousel-indicators {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .indicator.active {
+            background: white;
+            width: 30px;
+            border-radius: 5px;
+        }
+
+        .features-list {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf5 100%);
+            padding: 30px;
+            border-radius: 15px;
+            height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #667eea #f5f7fa;
+        }
+
+        .features-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .features-list::-webkit-scrollbar-track {
+            background: #f5f7fa;
+            border-radius: 10px;
+        }
+
+        .features-list::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        .features-list h3 {
+            color: #667eea;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .features-list ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .features-list li {
+            padding: 12px 0;
+            padding-left: 25px;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+            position: relative;
+            color: #555;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .features-list li:last-child {
+            border-bottom: none;
+        }
+
+        .features-list li::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .section-title {
+            font-size: 2em;
+            color: #667eea;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .pricing-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 50px;
+            border-radius: 20px;
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .pricing-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px 30px;
+            border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s;
+        }
+
+        .pricing-card:hover {
+            transform: scale(1.05);
+            background: rgba(255,255,255,0.15);
+        }
+
+        .pricing-card.featured {
+            background: white;
+            color: #667eea;
+            border: none;
+            position: relative;
+        }
+
+        .badge {
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            background: #f59e0b;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .plan-name {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .plan-price {
+            font-size: 2.5em;
+            font-weight: 800;
+            margin: 20px 0;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .plan-features li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .pricing-card.featured .plan-features li {
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .buy-button {
+            display: inline-block;
+            background: white;
+            /* color: #667eea; */
+            /* padding: 12px 30px; */
+            border-radius: 50px;
+            border: none;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .pricing-card.featured .buy-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .buy-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: white;
+        }
+
+        .creator {
+            font-size: 1.1em;
+            opacity: 0.9;
+            margin-top: 20px;
+        }
+
+        .creator a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 2px solid white;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 30px 20px;
+            }
+
+            .pricing-section {
+                padding: 40px 20px;
+            }
+
+            .logo-main {
+                font-size: 2.5em;
+            }
+
+            .logo-tagline {
+                font-size: 1.1em;
+            }
+
+            .value-props {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .content-row {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .carousel-slide {
+                height: 300px;
+            }
+
+            .carousel-button {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2em;
+            }
+
+            .pricing-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="brand-badge">Instagram Export Tool • Windows Only</div>
+                <h1 class="logo-main">InstaExtract Pro</h1>
+                <p class="logo-tagline">Advanced Instagram Data Extraction & Analytics</p>
+                
+                <div class="value-props">
+                    <div class="value-prop">
+                        <span class="value-prop-icon">⚡</span>
+                        <span>Fast Extraction</span>
+                    </div>
+                    <div class="value-prop">
+                        <span class="value-prop-icon">🔓</span>
+                        <span>Unlimited Access</span>
+                    </div>
+                    <div class="value-prop">
+                        <span class="value-prop-icon">💎</span>
+                        <span>Premium Quality</span>
+                    </div>
+                    <div class="value-prop">
+                        <span class="value-prop-icon">🪟</span>
+                        <span>Windows Compatible</span>
+                    </div>
+                </div>
+                
+                <div class="cta-buttons">
+                    <a href="#pricing" class="cta-button">Get Started Now</a>
+                    <a href="#features" class="cta-button">Features List</a>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content" id="features">
+            <h2 class="section-title">Features & Screenshots</h2>
+            
+            <div class="content-row">
+                <!-- Image Carousel -->
+                <div class="carousel-container">
+                    <div class="carousel-wrapper">
+                        <div class="carousel-slides" id="carouselSlides">
+                            <div class="carousel-slide">
+                                <img src="images/img_1.jfif" alt="Screenshot 1" onclick="openFullscreen(this.src)">
+                            </div>
+                            <div class="carousel-slide">
+                                <img src="images/img_2.jpg" alt="Screenshot 2" onclick="openFullscreen(this.src)">
+                            </div>
+                            <div class="carousel-slide">
+                                <img src="images/img_3.jpg" alt="Screenshot 3" onclick="openFullscreen(this.src)">
+                            </div>
+                            <div class="carousel-slide">
+                                <img src="images/img_4.jpg" alt="Screenshot 4" onclick="openFullscreen(this.src)">
+                            </div>
+                            <div class="carousel-slide">
+                                <img src="images/img_5.jpg" alt="Screenshot 5" onclick="openFullscreen(this.src)">
+                            </div>
+                            <div class="carousel-slide">
+                                <img src="images/img_6.jpg" alt="Screenshot 6" onclick="openFullscreen(this.src)">
+                            </div>
+                            <div class="carousel-slide">
+                                <img src="images/img_7.jpg" alt="Screenshot 7" onclick="openFullscreen(this.src)">
+                            </div>
+                            <div class="carousel-slide">
+                                <img src="images/img_8.jpg" alt="Screenshot 8" onclick="openFullscreen(this.src)">
+                            </div>
+                            <div class="carousel-slide">
+                                <img src="images/img_9.jpg" alt="Screenshot 9" onclick="openFullscreen(this.src)">
+                            </div>
+                            <div class="carousel-slide">
+                                <img src="images/img_10.jpg" alt="Screenshot 10" onclick="openFullscreen(this.src)">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="carousel-button prev" onclick="moveSlide(-1)">❮</button>
+                    <button class="carousel-button next" onclick="moveSlide(1)">❯</button>
+                    <div class="carousel-indicators" id="indicators"></div>
+                </div>
+
+                <!-- Features List -->
+                <div class="features-list">
+                    <h3>Features</h3>
+                    <ul>
+                        <li>Extract all available user information</li>
+                        <li>Extract user followers</li>
+                        <li>Extract user following</li>
+                        <li>Download Profile Media (video, images, grids)</li>
+                        <li>Extract emails from Instagram</li>
+                        <li>Extract users using hashtag</li>
+                        <li>Make combos (user:password)</li>
+                        <li>Check usernames (single, list)</li>
+                        <li>Cracking accounts</li>
+                        <li>Analyze accounts (With online tracking)</li>
+                    </ul>
+                    <p style="margin-top: 20px; padding-top: 20px; border-top: 2px solid rgba(102, 126, 234, 0.2); font-size: 0.9em; color: #888;">
+                        <strong style="color: #667eea;">System Requirements:</strong> Windows 7/8/10/11 (64-bit)
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="fullscreen-modal" id="fullscreenModal">
+            <button class="fullscreen-close" onclick="closeFullscreen()">&times;</button>
+            <img id="fullscreenImage" src="" alt="Full Screen Image">
+        </div>
+
+        <script>
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.carousel-slide');
+            const totalSlides = slides.length;
+            const indicatorsContainer = document.getElementById('indicators');
+
+            // Create indicators
+            for (let i = 0; i < totalSlides; i++) {
+                const indicator = document.createElement('div');
+                indicator.className = 'indicator';
+                if (i === 0) indicator.classList.add('active');
+                indicator.onclick = () => goToSlide(i);
+                indicatorsContainer.appendChild(indicator);
+            }
+
+            function updateCarousel() {
+                const slidesContainer = document.getElementById('carouselSlides');
+                slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
+                
+                // Update indicators
+                document.querySelectorAll('.indicator').forEach((indicator, index) => {
+                    indicator.classList.toggle('active', index === currentSlide);
+                });
+            }
+
+            function moveSlide(direction) {
+                currentSlide += direction;
+                if (currentSlide < 0) currentSlide = totalSlides - 1;
+                if (currentSlide >= totalSlides) currentSlide = 0;
+                updateCarousel();
+            }
+
+            function goToSlide(index) {
+                currentSlide = index;
+                updateCarousel();
+            }
+
+            // Full-screen functions
+            function openFullscreen(imageSrc) {
+                const modal = document.getElementById('fullscreenModal');
+                const fullscreenImage = document.getElementById('fullscreenImage');
+                fullscreenImage.src = imageSrc;
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeFullscreen() {
+                const modal = document.getElementById('fullscreenModal');
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+
+            // Close fullscreen with ESC key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeFullscreen();
+                }
+            });
+
+            // Auto-advance carousel
+            setInterval(() => {
+                moveSlide(1);
+            }, 5000);
+        </script>
+
+        <div class="pricing-section" id="pricing">
+            <h2 class="section-title" style="color: white;">Get Full Access</h2>
+            <p style="font-size: 1.1em; opacity: 0.9; margin-top: -20px;">Choose the plan that fits your needs</p>
+            
+            <div class="pricing-cards">
+                <div class="pricing-card featured">
+                    <div class="badge">MOST POPULAR</div>
+                    <div class="plan-name">Full Version</div>
+                    <div class="plan-price">$49</div>
+                    <div style="font-size: 0.9em; opacity: 0.8; margin-top: -10px; margin-bottom: 20px;">Lifetime License</div>
+                    <ul class="plan-features">
+                        <li>✓ All features unlocked</li>
+                        <li>✓ Unlimited extraction</li>
+                        <li>✓ No limits on any feature</li>
+                        <li>✓ Full media download</li>
+                        <li>✓ Priority support</li>
+                        <li>✓ Lifetime updates</li>
+                        <li>✓ Instant activation</li>
+                    </ul>
+                    <iframe class="buy-button" src="https://pay.cryptomus.com/widget/0d25ffda-d957-4413-89ed-618cb1f1c0d9" height="56px" width="440px"></iframe>
+                    <!-- <a href="#" class="buy-button">Purchase Now - $49</a> -->
+                </div>
+
+                <div class="pricing-card">
+                    <div class="badge" style="background: #8b5cf6;">FOR DEVELOPERS</div>
+                    <div class="plan-name">Source Code</div>
+                    <div class="plan-price">$199</div>
+                    <div style="font-size: 0.9em; opacity: 0.8; margin-top: -10px; margin-bottom: 20px;">Complete Package</div>
+                    <ul class="plan-features">
+                        <li>✓ Everything in Full Version</li>
+                        <li>✓ Complete source code</li>
+                        <li>✓ Modify & customize freely</li>
+                        <li>✓ No restrictions</li>
+                        <li>✓ Commercial use allowed</li>
+                        <li>✓ Developer documentation</li>
+                        <li>✓ Lifetime updates</li>
+                    </ul>
+                    <iframe class="buy-button" src="https://pay.cryptomus.com/widget/8834b442-06fa-4ad5-9f64-bcd4909811a6" height="56px" width="440px"></iframe>
+                    <!-- <a href="#" class="buy-button">Get Source Code - $199</a> -->
+                </div>
+            </div>
+        </div>
+
+
+        <footer>
+            <p class="creator">Made by <a href="https://t.me/zkada" target="_blank">@zkada</a></p>
+            <p style="margin-top: 10px; opacity: 0.8; font-size: 0.9em;">© 2026 InstaExtract Pro. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>
